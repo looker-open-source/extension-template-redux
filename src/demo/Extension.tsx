@@ -76,8 +76,8 @@ class ExtensionInternal extends React.Component<ExtensionProps, {}> {
     if (initializeError) {
       return
     }
-    const {looks, selectedLookId, location, runningQuery} = this.props
-    if (!runningQuery && looks && looks.length > 0) {
+    const {looks, selectedLookId, location, runningQuery, errorMessage} = this.props
+    if (!errorMessage && !runningQuery && looks && looks.length > 0) {
       let selectedLook
       if (!selectedLookId) {
         const path: string[] = location.pathname.split('/')

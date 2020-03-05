@@ -65,6 +65,6 @@ export const runLookSuccess = (lookId: number, result: Record<string, any>):Acti
 })
 
 export const error = (error: string):Action => ({
-  type: Actions.RUN_LOOK_SUCCESS,
+  type: Actions.ERROR,
   payload: error
 })
