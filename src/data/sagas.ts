@@ -22,12 +22,12 @@
  * THE SOFTWARE.
  */
 
-import { getCoreSDK } from '@looker/extension-sdk-react'
+import { getCore40SDK } from '@looker/extension-sdk-react'
 import { all, call, put, takeEvery, select } from 'redux-saga/effects'
 import { Actions, allLooksSuccess, runLookSuccess, error, Action, State } from '.'
 
 function* allLooksSaga() {
-  const coreSDK = getCoreSDK()
+  const coreSDK = getCore40SDK()
   const result = yield call([
     coreSDK,
     coreSDK.all_looks,
@@ -48,7 +48,7 @@ function* runLookSaga(action: Action) {
     // fast display if query run previously - fresh data will be displayed later
     yield put(runLookSuccess(lookId, state.queries[lookId]))
   }
-  const coreSDK = getCoreSDK()
+  const coreSDK = getCore40SDK()
   const result = yield call([
     coreSDK,
     coreSDK.run_look,
