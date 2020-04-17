@@ -76,33 +76,46 @@ class ExtensionInternal extends React.Component<ExtensionProps, {}> {
     if (initializeError) {
       return
     }
-    const {looks, selectedLookId, location, runningQuery, errorMessage} = this.props
-    if (!errorMessage && !runningQuery && looks && looks.length > 0) {
-      let selectedLook
-      if (!selectedLookId) {
-        const path: string[] = location.pathname.split('/')
-        if (path.length > 1 && path[1] !== '') {
-          const id: number = parseInt(path[1], 10)
-          if (!isNaN(id)) {
-            selectedLook = looks.find(look => look.id === id)
+    // Changes to the browser history drives the running of looks.
+    // The look id is part of the URL. Any change to the URL causes
+    // componentDidUpdate to run.
+    // The look id is extracted from the URL. If it is not present
+    // or is not a valid number, the look id of the first loaded
+    // looks is updated in the URL. This is a replace rather than a
+    // push to reduce the number of actions that do nothing when the
+    // browser back button is pressed. Adding the look id to the URL
+    // causes componentDidUpdate to run again. When it runs again
+    // the look is present and valid. At that point the look is run.
+    const {looks, runningQuery, selectedLookId, runLook} = this.props
+    if (looks && looks.length > 0 && !runningQuery) {
+      const {location} = this.props
+      const path: string[] = location.pathname.split('/')
+      let id: number | undefined
+      if (path.length > 1 && path[1] !== '') {
+        id = parseInt(path[1], 10)
+      }
+      if (!id || isNaN(id)) {
+        this.props.history.replace('/' + looks[0].id)
+      } else {
+        if (id !== selectedLookId) {
+          const selectedLook = looks.find(look => look.id === id)
+          if (selectedLook) {
+            this.context.extensionSDK.updateTitle(selectedLook.title || 'Unknown')
           }
+          // Run the look even if selected look is not found. If the look id
+          // is invalid, redux will create an error message to display.
+          runLook(id)
         }
-      }
-      if (!selectedLookId) {
-        selectedLook = looks[0]
-      }
-      if (selectedLook) {
-        this.onLookSelected(selectedLook)
       }
     }
   }
 
   onLookSelected(look: ILook) {
-    const {selectedLookId, runLook, runningQuery} = this.props
+    const {selectedLookId, runningQuery} = this.props
     if (!runningQuery && selectedLookId !== look.id && look.id) {
+      // Update the look id in the URL. This will trigger componentWillUpdate
+      // which will run the look.
       this.props.history.push('/' + look.id)
-      this.context.extensionSDK.updateTitle(look.title || 'Unknown')
-      runLook(look.id)
     }
   }
 

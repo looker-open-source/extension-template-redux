@@ -47,6 +47,7 @@ export const reducer = (
     case Actions.RUN_LOOK_REQUEST:
       return {
         ...state,
+        currentLookId: action.payload as number,
         loading: true,
         error: undefined
       }
@@ -61,7 +62,6 @@ export const reducer = (
       const newState = {
         ...state,
         loading: false,
-        currentLookId: lookId,
         queries: {
           ...state.queries,
           [lookId]: result
