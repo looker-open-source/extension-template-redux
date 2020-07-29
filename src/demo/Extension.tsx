@@ -24,13 +24,18 @@
 
 import { connect } from 'react-redux'
 import React from 'react'
-import {LookList} from './LookList'
-import {QueryContainer} from './QueryContainer'
-import {Banner, Box, Heading, Flex} from '@looker/components'
-import {ExtensionContext} from '@looker/extension-sdk-react'
-import {ILook} from '@looker/sdk'
-import { hot } from "react-hot-loader/root"
-import {Switch, Route, RouteComponentProps, withRouter} from 'react-router-dom'
+import { LookList } from './LookList'
+import { QueryContainer } from './QueryContainer'
+import { MessageBar, Box, Heading, Flex } from '@looker/components'
+import { ExtensionContext } from '@looker/extension-sdk-react'
+import { ILook } from '@looker/sdk'
+import { hot } from 'react-hot-loader/root'
+import {
+  Switch,
+  Route,
+  RouteComponentProps,
+  withRouter,
+} from 'react-router-dom'
 import { State, allLooksRequest, runLookRequest } from '../data'
 
 export type ExtensionProps = ExtensionStateProps &
@@ -63,7 +68,7 @@ class ExtensionInternal extends React.Component<ExtensionProps, {}> {
   }
 
   componentDidMount() {
-    const {initializeError} = this.context
+    const { initializeError } = this.context
     if (initializeError) {
       return
     }
@@ -72,7 +77,7 @@ class ExtensionInternal extends React.Component<ExtensionProps, {}> {
   }
 
   componentDidUpdate() {
-    const {initializeError} = this.context
+    const { initializeError } = this.context
     if (initializeError) {
       return
     }
@@ -86,9 +91,9 @@ class ExtensionInternal extends React.Component<ExtensionProps, {}> {
     // browser back button is pressed. Adding the look id to the URL
     // causes componentDidUpdate to run again. When it runs again
     // the look is present and valid. At that point the look is run.
-    const {looks, runningQuery, selectedLookId, runLook} = this.props
+    const { looks, runningQuery, selectedLookId, runLook } = this.props
     if (looks && looks.length > 0 && !runningQuery) {
-      const {location} = this.props
+      const { location } = this.props
       const path: string[] = location.pathname.split('/')
       let id: number | undefined
       if (path.length > 1 && path[1] !== '') {
@@ -98,9 +103,11 @@ class ExtensionInternal extends React.Component<ExtensionProps, {}> {
         this.props.history.replace('/' + looks[0].id)
       } else {
         if (id !== selectedLookId) {
-          const selectedLook = looks.find(look => look.id === id)
+          const selectedLook = looks.find((look) => look.id === id)
           if (selectedLook) {
-            this.context.extensionSDK.updateTitle(selectedLook.title || 'Unknown')
+            this.context.extensionSDK.updateTitle(
+              selectedLook.title || 'Unknown'
+            )
           }
           // Run the look even if selected look is not found. If the look id
           // is invalid, redux will create an error message to display.
@@ -111,7 +118,7 @@ class ExtensionInternal extends React.Component<ExtensionProps, {}> {
   }
 
   onLookSelected(look: ILook) {
-    const {selectedLookId, runningQuery} = this.props
+    const { selectedLookId, runningQuery } = this.props
     if (!runningQuery && selectedLookId !== look.id && look.id) {
       // Update the look id in the URL. This will trigger componentWillUpdate
       // which will run the look.
@@ -120,23 +127,31 @@ class ExtensionInternal extends React.Component<ExtensionProps, {}> {
   }
 
   render() {
-    if (this.context.initializeError) {
-      return <Banner intent='error'>{this.context.initializeError}</Banner>
-    }
-    const { errorMessage, loadingLooks, looks, currentLook, queryResult, runningQuery } = this.props
+    const {
+      errorMessage,
+      loadingLooks,
+      looks,
+      currentLook,
+      queryResult,
+      runningQuery,
+    } = this.props
     return (
       <>
-        {errorMessage && <Banner intent='error'>{errorMessage}</Banner>}
-        <Box m='large'>
-          <Heading fontWeight='semiBold'>Welcome to the Looker Extension Template</Heading>
-          <Flex width='100%'>
+        {errorMessage && (
+          <MessageBar intent="critical">{errorMessage}</MessageBar>
+        )}
+        <Box m="large">
+          <Heading fontWeight="semiBold">
+            Welcome to the Looker Extension Template
+          </Heading>
+          <Flex width="100%">
             <LookList
               loading={loadingLooks}
               looks={looks || []}
               selectLook={(look: ILook) => this.onLookSelected(look)}
             />
             <Switch>
-              <Route path='/:id'>
+              <Route path="/:id">
                 <QueryContainer
                   look={currentLook}
                   results={queryResult}
@@ -152,10 +167,12 @@ class ExtensionInternal extends React.Component<ExtensionProps, {}> {
 }
 
 const mapStateToProps = (state: any): ExtensionStateProps => {
-  const {loading, error, looks, currentLookId, queries} = state as State
+  const { loading, error, looks, currentLookId, queries } = state as State
   return {
     looks: looks,
-    currentLook: looks ? looks.find(look => look.id === currentLookId) : undefined,
+    currentLook: looks
+      ? looks.find((look) => look.id === currentLookId)
+      : undefined,
     selectedLookId: currentLookId,
     queryResult: currentLookId ? queries[currentLookId] : undefined,
     runningQuery: loading && !!looks,
@@ -173,8 +190,11 @@ const mapDispatchToProps = (dispatch: any): ExtensionDispatchProps => ({
   },
 })
 
-export const Extension = hot(withRouter(connect<
-  ExtensionStateProps,
-  ExtensionDispatchProps,
-  ExtensionOwnProps
->(mapStateToProps, mapDispatchToProps)(ExtensionInternal)))
+export const Extension = hot(
+  withRouter(
+    connect<ExtensionStateProps, ExtensionDispatchProps, ExtensionOwnProps>(
+      mapStateToProps,
+      mapDispatchToProps
+    )(ExtensionInternal)
+  )
+)

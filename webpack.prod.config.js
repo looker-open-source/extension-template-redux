@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-const path = require("path")
+const path = require('path')
 
 const PATHS = {
   app: path.join(__dirname, 'src/index.tsx'),
@@ -43,7 +43,12 @@ module.exports = {
         test: /\.(js|jsx|ts|tsx)$/,
         loader: 'babel-loader',
         exclude: /node_modules/,
-        include: /src/
+        include: /src/,
+        sideEffects: false,
+      },
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
       },
     ],
   },
